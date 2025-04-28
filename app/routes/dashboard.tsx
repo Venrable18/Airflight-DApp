@@ -1,9 +1,17 @@
+import { useState } from 'react';
 import { useWallet } from '../context/WalletContext';
 import { useNavigate } from 'react-router-dom';
-import { showFlightModal } from '../components/FlightModal';
+import InsureFlightModal from '../components/InsureFlightModal';
 import '../styles/dashboard.css';
 
 const Dashboard = () => {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleInsureFlight = () => {
+    setIsModalOpen(true);
+  };
+
   const { setIsWalletConnected } = useWallet();
   const navigate = useNavigate();
 
@@ -24,6 +32,10 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  const handleModalSubmit = (formData: FlightFormData) => {
+    console.log('Form Data:', formData);
+    // Handle form submission (e.g., send data to the blockchain)
+  };
 
   return (
     <div className="min-h-screen bg-[#4C2AA0] p-6">
@@ -42,6 +54,7 @@ const Dashboard = () => {
         {/* Insure Flight Button */}
         <div className="flex justify-end mb-8">
           <button
+            onClick={handleInsureFlight}
             className="px-6 py-3 bg-[#FFD700] text-[#4C2AA0] font-semibold rounded-lg hover:bg-[#FFC700] transition-colors"
           >
             Insure Flight
@@ -71,6 +84,11 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <InsureFlightModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleModalSubmit}
+      />
     </div>
   );
 }

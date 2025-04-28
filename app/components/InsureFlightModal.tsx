@@ -1,8 +1,5 @@
-import { useState } from 'react';
-import { WithContext as ReactTags } from 'react-tag-input';
-import Swal from 'sweetalert2';
-import 'sweetalert2/dist/sweetalert2.min.css';
-import 'react-tag-input/example/reactTags.css';
+import React, { useState } from 'react';
+import { WithContext as ReactTags, Tag } from 'react-tag-input';
 
 interface FlightFormData {
   airplaneName: string;
@@ -19,33 +16,51 @@ interface InsureFlightModalProps {
   onSubmit: (formData: FlightFormData) => void;
 }
 
-const InsureFlightModal = ({ isOpen, onClose, onSubmit }: InsureFlightModalProps) => {
+const KeyCodes = {
+  comma: 188,
+  enter: 13,
+};
+const delimiters = [KeyCodes.comma, KeyCodes.enter];
+
+const InsureFlightModal: React.FC<InsureFlightModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [airplaneName, setAirplaneName] = useState('');
   const [aircraftCode, setAircraftCode] = useState('');
   const [flightNumber, setFlightNumber] = useState('');
   const [flightDate, setFlightDate] = useState('');
-  const [insurancePrice, setInsurancePrice] = useState(0);
-  const [passengerWalletAddresses, setPassengerWalletAddresses] = useState<{ id: string; text: string }[]>([]);
+  const [insurancePrice, setInsurancePrice] = useState<number | ''>('');
+  const [passengerWalletAddresses, setPassengerWalletAddresses] = useState<Tag[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    const formData = {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const formData: FlightFormData = {
       airplaneName,
       aircraftCode,
       flightNumber,
       flightDate,
-      insurancePrice,
+      insurancePrice: typeof insurancePrice === 'string' ? parseFloat(insurancePrice) : insurancePrice,
       passengerWalletAddresses: passengerWalletAddresses.map(tag => tag.text),
     };
 
+    // Validation
     if (
-      !airplaneName ||
-      !aircraftCode ||
-      !flightNumber ||
-      !flightDate ||
-      !insurancePrice ||
-      !passengerWalletAddresses.length
+      !formData.airplaneName ||
+      !formData.aircraftCode ||
+      !formData.flightNumber ||
+      !formData.flightDate ||
+      !formData.insurancePrice ||
+      !formData.passengerWalletAddresses.length
     ) {
-      Swal.fire('Error', 'Please fill in all fields correctly.', 'error');
+      setError('Please fill in all fields correctly.');
+      return;
+    }
+
+    // Validate wallet addresses format (basic check)
+    const isValidWalletAddress = (address: string) => /^0x[a-fA-F0-9]{40}$/.test(address);
+    if (!formData.passengerWalletAddresses.every(isValidWalletAddress)) {
+      setError('Please enter valid wallet addresses (0x format)');
       return;
     }
 
@@ -56,93 +71,95 @@ const InsureFlightModal = ({ isOpen, onClose, onSubmit }: InsureFlightModalProps
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Insure Flight</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Airplane Name</label>
-            <input
-              type="text"
-              value={airplaneName}
-              onChange={(e) => setAirplaneName(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Aircraft Code</label>
-            <input
-              type="text"
-              value={aircraftCode}
-              onChange={(e) => setAircraftCode(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Flight Number</label>
-            <input
-              type="text"
-              value={flightNumber}
-              onChange={(e) => setFlightNumber(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Flight Date</label>
-            <input
-              type="date"
-              value={flightDate}
-              onChange={(e) => setFlightDate(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Insurance Price (ETH)</label>
-            <input
-              type="number"
-              value={insurancePrice}
-              onChange={(e) => setInsurancePrice(parseFloat(e.target.value))}
-              className="w-full p-2 border rounded"
-              min="0.01"
-              step="0.01"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Passengers' Wallet Addresses</label>
-            <ReactTags
-              tags={passengerWalletAddresses}
-              handleDelete={(i) => setPassengerWalletAddresses(passengerWalletAddresses.filter((_, index) => index !== i))}
-              handleAddition={(tag) => setPassengerWalletAddresses([...passengerWalletAddresses, tag])}
-              placeholder="Add wallet addresses"
-              classNames={{
-                tags: 'react-tags-wrapper',
-                tagInput: 'w-full',
-                tag: 'react-tags__tag',
-                remove: 'react-tags__remove',
-              }}
-            />
-          </div>
+    <div className="fixed inset-0 bg-black  flex items-center justify-center">
+      <form
+        className="bg-white rounded-lg p-6 w-full max-w-md space-y-4"
+        onSubmit={handleSubmit}
+      >
+        <h2 className="text-xl text-black font-bold mb-4">Insure Flight</h2>
+        {error && <div className="text-red-600 mb-2">{error}</div>}
+        <div>
+          <label className="block  text-black text-sm font-medium mb-1">Airplane Name</label>
+          <input
+            className="w-full p-2  text-black border border-black rounded"
+            value={airplaneName}
+            onChange={e => setAirplaneName(e.target.value)}
+            required
+          />
         </div>
-        <div className="mt-6 flex justify-end space-x-4">
+        <div>
+          <label className="block  text-black text-sm font-medium mb-1">Aircraft Code</label>
+          <input
+            className="w-full p-2 text-black border border-black rounded"
+            value={aircraftCode}
+            onChange={e => setAircraftCode(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label className="block  text-black text-sm font-medium mb-1">Flight Number</label>
+          <input
+            className="w-full p-2  text-black border border-black rounded"
+            value={flightNumber}
+            onChange={e => setFlightNumber(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label className="block  text-black text-sm font-medium mb-1">Flight Date</label>
+          <input
+            type="date"
+            className="w-full p-2 border  text-black border-black rounded"
+            value={flightDate}
+            onChange={e => setFlightDate(e.target.value)}
+            required
+            min={new Date().toISOString().split('T')[0]}
+          />
+        </div>
+        <div>
+          <label className="block text-sm  text-black font-medium mb-1">Insurance Price (ETH)</label>
+          <input
+            type="number"
+            className="w-full p-2 border  text-black border-black rounded"
+            value={insurancePrice}
+            onChange={e => setInsurancePrice(e.target.value)}
+            required
+            min="0.01"
+            step="0.01"
+          />
+        </div>
+        <div>
+          <label className="block text-sm  text-black font-medium mb-1">Passengers' Wallet Addresses</label>
+          <ReactTags
+            tags={passengerWalletAddresses}
+            delimiters={delimiters}
+            handleDelete={i => setPassengerWalletAddresses(passengerWalletAddresses.filter((_, idx) => idx !== i))}
+            handleAddition={tag => setPassengerWalletAddresses([...passengerWalletAddresses, tag])}
+            placeholder="Add wallet addresses"
+            classNames={{
+              tags: 'flex flex-wrap gap-2',
+              tagInput: 'w-full p-2  text-black border border-black rounded',
+              tag: 'bg-[#E5E7EB] text-black px-2 py-1 rounded flex items-center border border-black',
+              remove: 'ml-2 text-black cursor-pointer',
+            }}
+          />
+        </div>
+        <div className="flex justify-end space-x-2 mt-4">
           <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
+            type="submit"
             className="px-4 py-2 bg-[#4C2AA0] text-white rounded hover:bg-[#3B1F7A]"
           >
             Submit
           </button>
+          <button
+            type="button"
+            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
