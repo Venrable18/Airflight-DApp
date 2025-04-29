@@ -16,7 +16,7 @@ export interface FlightFormData {
 
 
 const validateForm = (formData: Partial<FlightFormData>): boolean => {
-  if (!formData.flightNumber || !formData.flightDate) {
+  if (!formData.flightNumber) {
     return false;
   }
   const flightNumberRegex = /^[A-Z]{2}\d{3,4}$/;
@@ -36,20 +36,10 @@ export const showFlightModal = async ({
     title: 'Flight Insurance Details',
     html: `
       <div id="validationError" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"></div>
-      <form id="flightInsuranceForm" class="space-y-6">
+      <form id="flightInsuranceForm" class="space-y-6 cursor-grab">
         <div class="text-left">
           <label class="block text-sm font-medium text-gray-700 mb-1">Flight Number</label>
           <input id="flightNumber" class="swal2-input w-full" placeholder="Flight Number (e.g., AA1234)" required>
-        </div>
-        <div class="text-left">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Flight Date</label>
-          <input 
-            id="flightDate" 
-            type="date" 
-            class="swal2-input w-full" 
-            required
-            min="${new Date().toISOString().split('T')[0]}"
-          >
         </div>
       </form>
     `,
@@ -66,13 +56,12 @@ export const showFlightModal = async ({
     preConfirm: () => {
       const formData = {
         flightNumber: (document.getElementById('flightNumber') as HTMLInputElement).value,
-        flightDate: (document.getElementById('flightDate') as HTMLInputElement).value,
       };
 
       const errorDiv = document.getElementById('validationError');
       if (!validateForm(formData)) {
         if (errorDiv) {
-          errorDiv.textContent = 'Please fill in all fields correctly. Flight number should be in format AA1234';
+          errorDiv.textContent = 'Please fill in fields correctly. Flight number should be in format AA1234';
           errorDiv.classList.remove('hidden');
         }
         return false;
