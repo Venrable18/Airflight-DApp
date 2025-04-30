@@ -1,17 +1,23 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import planeImage from '../assets/image1.png';
 import prof from '../assets/prof.png';
 import Swal from 'sweetalert2';
-import { showFlightModal, type FlightFormData } from '../components/FlightModal';
+import CustomModal from '../components/claimInsurance';
 import { useWallet } from '../context/WalletContext';
 
 export default function Home() {
   const navigate = useNavigate();
   const { isWalletConnected, walletAddress, setIsWalletConnected, setWalletAddress } = useWallet();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
   const handleInsuranceSubmit = (formData: FlightFormData) => {
-    console.log('Insurance Form Data:', formData);
-    // Add your blockchain transaction logic here
+    console.log('Form Data:', formData);
+    // Handle form submission (e.g., send data to the blockchain)
+    handleCloseModal(); // Close the modal after submission
   };
 
   const handleWalletConnection = () => {
@@ -94,12 +100,7 @@ export default function Home() {
                     });
                   } else {
                     {/* Add your logic for handling the insurance claim here and navigate to the  */}
-                    showFlightModal({
-                      isWalletConnected,
-                      walletAddress,
-                      onSubmit: handleInsuranceSubmit,
-                      onSuccess: () => navigate('/dashboard')
-                    });
+                 handleOpenModal();
                   }
                 }}
               >
@@ -156,6 +157,9 @@ export default function Home() {
           </div>
         </div>
       </main>
+      {isModalOpen && (
+        <CustomModal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleInsuranceSubmit} />
+      )}
     </div>
   );
 }
