@@ -3,6 +3,9 @@ import { WithContext as ReactTags } from 'react-tag-input';
 import ReactDOM from 'react-dom/client';
 import '../styles/FlightModal.css';
 
+
+{/* import { showFlightModal } from '../components/FlightModal'; */}
+
 interface FlightModalProps {
   isWalletConnected: boolean;
   onSubmit: (formData: FlightFormData) => void;
