@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import CustomModal from '../components/claimInsurance';
 import { useWallet } from '../context/WalletContext';
 
+
 export default function Home() {
   const navigate = useNavigate();
   const { isWalletConnected, walletAddress, setIsWalletConnected, setWalletAddress } = useWallet();
@@ -26,6 +27,7 @@ export default function Home() {
     setWalletAddress('0xYourWalletAddress');
   };
 
+  // Function to handle the "Dashboard" button click
   const handleDashboardClick = () => {
     navigate('/dashboard');
   };
@@ -157,6 +159,7 @@ export default function Home() {
           </div>
         </div>
       </main>
+      {/* Modal */}
       {isModalOpen && (
         <CustomModal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleInsuranceSubmit} />
       )}
