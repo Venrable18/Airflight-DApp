@@ -86,7 +86,7 @@ const InsureFlightModal: React.FC<InsureFlightModalProps> = ({ isOpen, onClose, 
       setIsSubmitting(false);
     }
   };
-
+  {/* If the modal is not open, don't render anything */}
   if (!isOpen) return null;
 
   return (
