@@ -5,12 +5,27 @@ import InsureFlightModal from '../components/InsureFlightModal';
 import FlightDetailsModal from '../components/FlightDetailsModal';
 import '../styles/dashboard.css';
 
+interface FlightFormData {
+  aircraftCode: string;
+  flightNumber: string;
+  insurancePrice: number;
+  passengerWalletAddresses: string[];
+}
+
+interface Flight {
+  id: number;
+  aircraftCode: string;
+  flightNumber: string;
+  insurancePrice: number;
+  passengerWalletAddresses: string[];
+}
+
 const Dashboard = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const[isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const[selectedFlight, setSelectedFlight] = useState(null);
-  const[mockFlights, setMockFlights] = useState([
+  const[selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
+  const[mockFlights, setMockFlights] = useState<Flight[]>([
     { 
       id: 1,
       aircraftCode: 'AA',
@@ -56,10 +71,14 @@ const Dashboard = () => {
     // Handle form submission (e.g., send data to the blockchain)
   };
 
-  const handleViewMore = (flight) => {
-    console.log('View More for Flight:', flight);
+  const handleViewMore = (flight: Flight) => {
     setSelectedFlight(flight);
     setIsDetailsModalOpen(true);
+  };
+
+  const handleCloseDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedFlight(null);
   };
 
   return (
@@ -114,13 +133,13 @@ const Dashboard = () => {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleModalSubmit}
       />
-    {isDetailsModalOpen && (
-      <FlightDetailsModal
-        isOpen={isDetailsModalOpen}
-        onClose={() => setIsDetailsModalOpen(false)}
-        flight={selectedFlight}
-      />
-    )}
+      {(isDetailsModalOpen && selectedFlight) && (
+        <FlightDetailsModal
+          isOpen={isDetailsModalOpen}
+          onClose={handleCloseDetailsModal}
+          flight={selectedFlight}
+        />
+      )}
     </div>
 
   );

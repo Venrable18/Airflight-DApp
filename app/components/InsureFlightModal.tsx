@@ -67,7 +67,7 @@ const InsureFlightModal: React.FC<InsureFlightModalProps> = ({ isOpen, onClose, 
           icon: 'success',
           title: 'Success!',
           showCancelButton: false,
-          timer: 1000,
+          timer: 2000,
           text: 'Flight insurance submitted successfully!',
         }).then(() => {
           // Reset form input fields
@@ -97,7 +97,7 @@ const InsureFlightModal: React.FC<InsureFlightModalProps> = ({ isOpen, onClose, 
       <div className='fixed inset-0 flex items-center justify-center z-50'>
         <form
           className={`bg-white rounded-lg shadow-2xl p-6 w-full max-w-md space-y-4 cursor-pointer ${
-            isSubmitting ? 'opacity-40 blur-sm' : ''
+            isSubmitting
           }`}
           onSubmit={handleSubmit}
         >
