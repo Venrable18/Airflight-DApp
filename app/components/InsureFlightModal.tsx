@@ -78,7 +78,7 @@ const InsureFlightModal: React.FC<InsureFlightModalProps> = ({ isOpen, onClose, 
           setIsSubmitting(false);
         });
         onClose();
-      }, 1500);
+      }, 1000);
 
     } catch (error) {
       setError('An error occurred while submitting the form');

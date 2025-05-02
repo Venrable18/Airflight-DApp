@@ -2,33 +2,64 @@ import { useState } from 'react';
 import { useWallet } from '../context/WalletContext';
 import { useNavigate } from 'react-router-dom';
 import InsureFlightModal from '../components/InsureFlightModal';
+import FlightDetailsModal from '../components/FlightDetailsModal';
 import '../styles/dashboard.css';
 
 const Dashboard = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const[isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const[selectedFlight, setSelectedFlight] = useState(null);
+  const[mockFlights, setMockFlights] = useState([
+    { 
+      id: 1,
+      aircraftCode: 'AA',
+      flightNumber: 'AA123',
+      insurancePrice: 0.5,
+      passengerWalletAddresses: ['0x123...', '0x456...'],
+     },
+    {
+      id: 2,
+      aircraftCode: 'DL',
+      flightNumber: 'DL456',
+      insurancePrice: 0.75,
+      passengerWalletAddresses: ['0x789...'],
+    },
+  ]);
 
-  const handleInsureFlight = () => {
-    setIsModalOpen(true);
-  };
 
   const { setIsWalletConnected } = useWallet();
   const navigate = useNavigate();
 
-  const mockFlights = [
-    { id: 1, number: 'AA123' },
-    { id: 2, number: 'DL456' },
-
-  ];
 
   const handleDisconnect = () => {
     setIsWalletConnected(false);
     navigate('/');
   };
 
+  const handleInsureFlight = () => {
+    setIsModalOpen(true);
+  };
+
   const handleModalSubmit = (formData: FlightFormData) => {
     console.log('Form Data:', formData);
+
+    const newFlight = {
+      id: mockFlights.length + 1,
+      aircraftCode: formData.aircraftCode,
+      flightNumber: formData.flightNumber,
+      insurancePrice: formData.insurancePrice,
+      passengerWalletAddresses: formData.passengerWalletAddresses,
+    }
+
+    setMockFlights([...mockFlights, newFlight]);
     // Handle form submission (e.g., send data to the blockchain)
+  };
+
+  const handleViewMore = (flight) => {
+    console.log('View More for Flight:', flight);
+    setSelectedFlight(flight);
+    setIsDetailsModalOpen(true);
   };
 
   return (
@@ -65,10 +96,10 @@ const Dashboard = () => {
                 className="bg-white rounded-lg p-6 flex flex-col items-center space-y-4"
               >
                 <h3 className="text-xl font-semibold text-[#4C2AA0]">
-                  Flight {flight.number}
+                  Flight {flight.flightNumber}
                 </h3>
                 <button
-                  onClick={() => console.log(`View flight ${flight.number}`)}
+                  onClick={() => handleViewMore(flight)}
                   className="px-4 py-2 border-2 border-[#4C2AA0] text-[#4C2AA0] rounded-lg hover:bg-[#4C2AA0] hover:text-white transition-colors"
                 >
                   View More
@@ -83,7 +114,15 @@ const Dashboard = () => {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleModalSubmit}
       />
+    {isDetailsModalOpen && (
+      <FlightDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        flight={selectedFlight}
+      />
+    )}
     </div>
+
   );
 }
 
