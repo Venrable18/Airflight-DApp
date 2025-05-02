@@ -18,13 +18,7 @@ const Dashboard = () => {
   const mockFlights = [
     { id: 1, number: 'AA123' },
     { id: 2, number: 'DL456' },
-    { id: 3, number: 'UA789' },
-    { id: 4, number: 'AC438' },
-    { id: 5, number: 'AX429' },
-    { id: 6, number: 'QA78C' },
-    { id: 7, number: 'UA156' },
-    { id: 8, number: 'UA346' },
-    { id: 9, number: 'BL409' },
+
   ];
 
   const handleDisconnect = () => {
